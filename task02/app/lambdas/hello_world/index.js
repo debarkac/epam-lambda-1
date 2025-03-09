@@ -26,7 +26,7 @@ exports.handler = async (event) => {
             "statusCode": 400,
             "body": {
               "statusCode": 400,
-              "message": "Bad request syntax or unsupported method. Request path: {path}. HTTP method: {method}"
+              "message": `Bad request syntax or unsupported method. Request path: ${path}. HTTP method: ${method}`
             },
             "headers": {
               "content-type": "application/json"
