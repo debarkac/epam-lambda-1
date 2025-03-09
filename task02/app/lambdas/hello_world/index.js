@@ -1,9 +1,10 @@
 const routes = {
     "/hello": {
         GET: () => ({
-            statusCode: 200,
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ message: "Hello from Lambda" }),
+            body: JSON.stringify({ 
+                statusCode: 200,
+                message: "Hello from Lambda" }),
         }),
     },
 };
@@ -17,9 +18,9 @@ exports.handler = async (event) => {
     return routeHandler
         ? routeHandler()
         : {
-            statusCode: 400,
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
+                statusCode: 400,
                 message: `Bad request syntax or unsupported method. Request path: ${path}. HTTP method: ${method}`,
             }),
         };
