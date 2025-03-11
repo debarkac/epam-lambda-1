@@ -1,0 +1,16 @@
+{
+    "name": "task3_api",
+    "resource_type": "api_gateway",
+    "resources": [
+      {
+        "path": "/hello",
+        "methods": ["GET"]
+      }
+    ],
+    "stages": [
+      {
+        "name": "api",
+        "auto_deploy": true
+      }
+    ]
+  }

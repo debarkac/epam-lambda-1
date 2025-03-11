@@ -17,13 +17,6 @@
     "resource_type": "iam_policy",
     "tags": {}
   },
-  "hello": {
-    "resource_type": "api_gateway",
-    "deploy_stage": "string",
-    "dependencies": [],
-    "resources": {},
-    "tags": {}
-  },
   "task3_api": {
     "resource_type": "api_gateway",
     "deploy_stage": "api",
