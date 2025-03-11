@@ -6,7 +6,15 @@
           "Action": [
             "logs:CreateLogGroup",
             "logs:CreateLogStream",
-            "logs:PutLogEvents"
+            "logs:PutLogEvents",
+            "dynamodb:GetItem",
+            "dynamodb:Query",
+            "dynamodb:PutItem",
+            "dynamodb:Batch*",
+            "dynamodb:DeleteItem",
+            "ssm:PutParameter",
+            "ssm:GetParameter",
+            "kms:Decrypt"
           ],
           "Effect": "Allow",
           "Resource": "*"
@@ -15,6 +23,15 @@
       "Version": "2012-10-17"
     },
     "resource_type": "iam_policy",
+    "tags": {}
+  },
+  "hello_wolrd-role": {
+    "predefined_policies": [],
+    "principal_service": "lambda",
+    "custom_policies": [
+      "lambda-basic-execution"
+    ],
+    "resource_type": "iam_role",
     "tags": {}
   },
   "task3_api": {
@@ -34,10 +51,19 @@
           "responses": [],
           "integration_responses": [],
           "default_error_pattern": true,
-          "enable_proxy": true
+          "enable_proxy": false
         }
       }
     },
+    "tags": {}
+  },
+  "sqs_handler-role": {
+    "predefined_policies": [],
+    "principal_service": "lambda",
+    "custom_policies": [
+      "lambda-basic-execution"
+    ],
+    "resource_type": "iam_role",
     "tags": {}
   }
 }
