@@ -9,7 +9,13 @@
   "timeout": 100,
   "lambda_path": "lambdas\\hello_world",
   "dependencies": [],
-  "event_sources": [],
+  "event_sources": [
+    {
+      "type": "api_gateway",
+      "http_method": "GET",
+      "path": "/hello"
+    }
+  ],
   "env_variables": {},
   "publish_version": true,
   "alias": "${lambdas_alias_name}",
