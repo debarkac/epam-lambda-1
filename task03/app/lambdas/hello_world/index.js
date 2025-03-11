@@ -3,9 +3,9 @@ const routes = {
         GET: () => ({
             "statusCode": 200,
             "body": JSON.stringify({
-                statusCode: 200,
-                message: "Hello from Lambda"
-              }),
+                "statusCode": 200,
+                "message": "Hello from Lambda"
+            }),
             "headers": {
               "content-type": "application/json"
             },
