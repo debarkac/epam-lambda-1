@@ -1,0 +1,17 @@
+{
+  "sqs_handler-role": {
+    "predefined_policies": [],
+    "principal_service": "lambda",
+    "custom_policies": [
+      "lambda-basic-execution"
+    ],
+    "resource_type": "iam_role",
+    "tags": {},
+    "event_sources": [
+  {
+    "resource_name": "async_queue",
+    "batch_size": 10
+  }
+]
+  }
+}
