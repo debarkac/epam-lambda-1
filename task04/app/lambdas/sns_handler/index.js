@@ -1,4 +1,4 @@
-exports.handler = async (event, context) => {
+exports.handler = async (event) => {
     console.log('SNS event received:', JSON.stringify(event));
     
     for (const record of event.Records) {

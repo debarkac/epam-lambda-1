@@ -1,4 +1,4 @@
-exports.handler = async (event, context) => {
+exports.handler = async (event) => {
     console.log('SQS event received:', JSON.stringify(event));
     
     for (const record of event.Records) {
