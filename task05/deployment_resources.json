@@ -30,28 +30,7 @@
     "resource_type": "iam_policy",
     "tags": {}
   },
-  "task4_api": {
-    "resource_type": "api_gateway",
-    "deploy_stage": "api",
-    "dependencies": [],
-    "resources": {
-      "/events": {
-        "enable_cors": false,
-        "POST": {
-          "authorization_type": "NONE",
-          "integration_type": "mock",
-          "api_key_required": false,
-          "method_request_parameters": {},
-          "integration_request_body_template": {},
-          "responses": [],
-          "integration_responses": [],
-          "default_error_pattern": true
-        }
-      }
-    },
-    "tags": {}
-  },
-  "Events": {
+  "${target_table}": {
     "resource_type": "dynamodb_table",
     "hash_key_name": "id",
     "hash_key_type": "S",
@@ -76,7 +55,8 @@
           "integration_request_body_template": {},
           "responses": [],
           "integration_responses": [],
-          "default_error_pattern": true
+          "default_error_pattern": true,
+          "enable_proxy": true
         }
       }
     },
