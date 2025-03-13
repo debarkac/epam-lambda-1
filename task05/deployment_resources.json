@@ -49,6 +49,7 @@
         "enable_cors": false,
         "POST": {
           "authorization_type": "NONE",
+          "enable_proxy": true,
           "integration_type": "lambda",
           "lambda_name": "api_handler",
           "api_key_required": false,
@@ -56,8 +57,7 @@
           "integration_request_body_template": {},
           "responses": [],
           "integration_responses": [],
-          "default_error_pattern": true,
-          "enable_proxy": true
+          "default_error_pattern": true
         }
       }
     },
