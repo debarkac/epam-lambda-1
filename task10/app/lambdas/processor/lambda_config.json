@@ -13,6 +13,7 @@
   "env_variables": {
     "WEATHER_TABLE": "${target_table}"
   },
+  "tracing_mode":"Active",
   "publish_version": true,
   "alias": "${lambdas_alias_name}",
   "url_config": {
