@@ -47,8 +47,15 @@ const notFoundResponse = () => formatResponse(404, { message: "Not Found" });
 
 async function handleSignup(event) {
   try {
+    console.log("Signup Request Received:", event.body);
     const { firstName, lastName, email, password } = JSON.parse(event.body);
-    if (!firstName || !lastName || !email || !password) return formatResponse(400, { error: "All fields are required." });
+
+    if (!firstName || !lastName || !email || !password) {
+      return formatResponse(400, { error: "All fields are required." });
+    }
+
+    // Ensure AWS SDK is using the right region
+    AWS.config.update({ region: process.env.AWS_REGION || 'us-east-1' });
 
     const params = {
       UserPoolId: CONFIG.USER_POOL_ID,
@@ -62,7 +69,11 @@ async function handleSignup(event) {
       TemporaryPassword: password,
       MessageAction: "SUPPRESS",
     };
+
+    console.log("Creating Cognito user...");
     await cognito.adminCreateUser(params).promise();
+
+    console.log("Setting permanent password...");
     await cognito.adminSetUserPassword({
       UserPoolId: CONFIG.USER_POOL_ID,
       Username: email,
@@ -70,25 +81,55 @@ async function handleSignup(event) {
       Permanent: true,
     }).promise();
 
+    console.log("User successfully created!");
     return formatResponse(200, { message: "User created successfully." });
   } catch (error) {
-    return formatResponse(400, { error: error.code === "UsernameExistsException" ? "Email already exists." : "Signup failed." });
+    console.error("Signup Error:", error);
+
+    if (error.code === "UsernameExistsException") {
+      return formatResponse(400, { error: "Email already exists." });
+    }
+
+    return formatResponse(500, { error: "Signup failed. Internal Server Error." });
   }
 }
 
 async function handleSignin(event) {
   try {
+    console.log("Signin Request Received:", event.body);
     const { email, password } = JSON.parse(event.body);
+
+    if (!email || !password) {
+      return formatResponse(400, { error: "Email and password are required." });
+    }
+
+    AWS.config.update({ region: process.env.AWS_REGION || 'us-east-1' });
+
     const params = {
       AuthFlow: "ADMIN_USER_PASSWORD_AUTH",
       UserPoolId: CONFIG.USER_POOL_ID,
       ClientId: CONFIG.CLIENT_ID,
-      AuthParameters: { USERNAME: email, PASSWORD: password },
+      AuthParameters: {
+        USERNAME: email,
+        PASSWORD: password,
+      },
     };
+
+    console.log("Authenticating user...");
     const authResponse = await cognito.adminInitiateAuth(params).promise();
-    return authResponse.AuthenticationResult ? formatResponse(200, { idToken: authResponse.AuthenticationResult.IdToken }) : formatResponse(400, { error: "Authentication failed." });
+
+    if (authResponse.AuthenticationResult) {
+      console.log("Authentication successful!");
+      return formatResponse(200, {
+        idToken: authResponse.AuthenticationResult.IdToken,
+      });
+    } else {
+      console.log("Authentication failed.");
+      return formatResponse(400, { error: "Authentication failed." });
+    }
   } catch (error) {
-    return formatResponse(400, { error: "Invalid email or password." });
+    console.error("Signin Error:", error);
+    return formatResponse(500, { error: "Invalid email or password." });
   }
 }
 
