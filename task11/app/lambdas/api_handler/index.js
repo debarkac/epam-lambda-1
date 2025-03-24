@@ -99,7 +99,7 @@ async function handleGetTables(event) {
     const result = await dynamodb.scan({ TableName: CONFIG.TABLES_TABLE }).promise();
     return formatResponse(200, { tables: result.Items });
   } catch (error) {
-    return formatResponse(500, { message: "Internal Server Error" });
+    return formatResponse(400, { message: "Internal Server Error" });
   }
 }
 
@@ -126,7 +126,7 @@ async function handleGetTableById(event) {
     const result = await dynamodb.get(params).promise();
     return result.Item ? formatResponse(200, result.Item) : formatResponse(404, { message: "Table not found" });
   } catch (error) {
-    return formatResponse(500, { message: "Internal Server Error" });
+    return formatResponse(400, { message: "Internal Server Error" });
   }
 }
 
