@@ -7,7 +7,7 @@ const CONFIG = {
   CLIENT_ID: process.env.cup_client_id,
   TABLES_TABLE: process.env.tables_table,
   RESERVATIONS_TABLE: process.env.reservations_table,
-  REGION: process.env.AWS_REGION || 'us-east-1'
+  REGION: process.env.AWS_REGION || 'eu-west-1'
 };
 
 // AWS service clients
