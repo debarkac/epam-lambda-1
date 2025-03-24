@@ -1,1 +1,0 @@
-# epam-lambda-1
