@@ -7,12 +7,17 @@ const CONFIG = {
   CLIENT_ID: process.env.cup_client_id,
   TABLES_TABLE: process.env.tables_table,
   RESERVATIONS_TABLE: process.env.reservations_table,
-  REGION: process.env.AWS_REGION || 'eu-west-1'
+  REGION: process.env.AWS_REGION || 'us-east-1'
 };
 
 // AWS service clients
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 const cognito = new AWS.CognitoIdentityServiceProvider();
+
+// Set AWS region globally
+const setAwsRegion = () => {
+  AWS.config.update({ region: CONFIG.REGION });
+};
 
 // Response helpers
 const createResponse = (statusCode, body) => ({
@@ -35,84 +40,138 @@ const authenticate = (event) => {
   return username;
 };
 
+// Validation helpers
+const validateEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+const validatePassword = (password) => {
+  // Minimum 8 characters with at least one uppercase, one lowercase, one number
+  return password && password.length >= 8;
+};
+
 // Route handlers
 const routeHandlers = {
   // Authentication routes
   async signUp(event) {
     try {
+      console.log("Signup Request Received:", event.body);
       const { firstName, lastName, email, password } = JSON.parse(event.body);
       
+      // Validate required fields
       if (!firstName || !lastName || !email || !password) {
         return createResponse(400, { error: "All fields are required." });
       }
+
+      // Validate email format
+      if (!validateEmail(email)) {
+        return createResponse(400, { error: "Invalid email format." });
+      }
+
+      // Validate password requirements
+      if (!validatePassword(password)) {
+        return createResponse(400, { error: "Password must be at least 8 characters long." });
+      }
       
       // Set AWS region
-      AWS.config.update({ region: CONFIG.REGION });
+      setAwsRegion();
       
       // Create user in Cognito
-      await cognito.adminCreateUser({
-        UserPoolId: CONFIG.USER_POOL_ID,
-        Username: email,
-        UserAttributes: [
-          { Name: "given_name", Value: firstName },
-          { Name: "family_name", Value: lastName },
-          { Name: "email", Value: email },
-          { Name: "email_verified", Value: "true" },
-        ],
-        TemporaryPassword: password,
-        MessageAction: "SUPPRESS",
-      }).promise();
+      try {
+        await cognito.adminCreateUser({
+          UserPoolId: CONFIG.USER_POOL_ID,
+          Username: email,
+          UserAttributes: [
+            { Name: "given_name", Value: firstName },
+            { Name: "family_name", Value: lastName },
+            { Name: "email", Value: email },
+            { Name: "email_verified", Value: "true" },
+          ],
+          TemporaryPassword: password,
+          MessageAction: "SUPPRESS",
+        }).promise();
+      } catch (cognitoError) {
+        console.error("Cognito Create User Error:", cognitoError);
+        
+        if (cognitoError.code === "UsernameExistsException") {
+          return createResponse(400, { error: "Email already exists." });
+        }
+        
+        if (cognitoError.code === "InvalidParameterException" || 
+            cognitoError.code === "InvalidPasswordException") {
+          return createResponse(400, { error: cognitoError.message });
+        }
+        
+        throw cognitoError; // Rethrow for the outer catch block
+      }
       
       // Set permanent password
-      await cognito.adminSetUserPassword({
-        UserPoolId: CONFIG.USER_POOL_ID,
-        Username: email,
-        Password: password,
-        Permanent: true,
-      }).promise();
+      try {
+        await cognito.adminSetUserPassword({
+          UserPoolId: CONFIG.USER_POOL_ID,
+          Username: email,
+          Password: password,
+          Permanent: true,
+        }).promise();
+      } catch (passwordError) {
+        console.error("Set Password Error:", passwordError);
+        
+        if (passwordError.code === "InvalidPasswordException") {
+          return createResponse(400, { error: "Password does not meet requirements." });
+        }
+        
+        throw passwordError; // Rethrow for the outer catch block
+      }
       
+      console.log("User successfully created!");
       return createResponse(200, { message: "User created successfully." });
     } catch (error) {
       console.error("Signup Error:", error);
-      
-      if (error.code === "UsernameExistsException") {
-        return createResponse(400, { error: "Email already exists." });
-      }
-      
       return createResponse(500, { error: "Signup failed. Internal Server Error." });
     }
   },
   
   async signIn(event) {
     try {
+      console.log("Signin Request Received:", event.body);
       const { email, password } = JSON.parse(event.body);
       
       if (!email || !password) {
         return createResponse(400, { error: "Email and password are required." });
       }
       
-      AWS.config.update({ region: CONFIG.REGION });
+      setAwsRegion();
       
-      const authResponse = await cognito.adminInitiateAuth({
-        AuthFlow: "ADMIN_USER_PASSWORD_AUTH",
-        UserPoolId: CONFIG.USER_POOL_ID,
-        ClientId: CONFIG.CLIENT_ID,
-        AuthParameters: {
-          USERNAME: email,
-          PASSWORD: password,
-        },
-      }).promise();
-      
-      if (authResponse.AuthenticationResult) {
-        return createResponse(200, {
-          idToken: authResponse.AuthenticationResult.IdToken,
-        });
-      } else {
-        return createResponse(400, { error: "Authentication failed." });
+      try {
+        const authResponse = await cognito.adminInitiateAuth({
+          AuthFlow: "ADMIN_USER_PASSWORD_AUTH",
+          UserPoolId: CONFIG.USER_POOL_ID,
+          ClientId: CONFIG.CLIENT_ID,
+          AuthParameters: {
+            USERNAME: email,
+            PASSWORD: password,
+          },
+        }).promise();
+        
+        if (authResponse.AuthenticationResult) {
+          console.log("Authentication successful!");
+          return createResponse(200, {
+            idToken: authResponse.AuthenticationResult.IdToken,
+          });
+        } else {
+          console.log("Authentication failed.");
+          return createResponse(400, { error: "Authentication failed." });
+        }
+      } catch (authError) {
+        console.error("Authentication Error:", authError);
+        
+        // Return 400 for all auth errors - user not found, wrong password, etc.
+        return createResponse(400, { error: "Invalid email or password." });
       }
     } catch (error) {
       console.error("Signin Error:", error);
-      return createResponse(500, { error: "Invalid email or password." });
+      return createResponse(500, { error: "An unexpected error occurred." });
     }
   },
   
@@ -207,6 +266,14 @@ const routeHandlers = {
     
     try {
       const reservationData = JSON.parse(event.body);
+      
+      // Validate required reservation fields
+      const requiredFields = ['tableId', 'clientName', 'phoneNumber', 'date', 'slotTimeStart', 'slotTimeEnd'];
+      for (const field of requiredFields) {
+        if (!reservationData[field]) {
+          return createResponse(400, { error: `${field} is required.` });
+        }
+      }
       
       const reservation = {
         id: uuidv4(),
