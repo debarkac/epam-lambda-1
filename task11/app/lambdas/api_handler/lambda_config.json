@@ -10,8 +10,8 @@
   "lambda_path": "lambdas\\api_handler",
   "dependencies": [
     {
-    "resource_name": "${booking_userpool}",
-    "resource_type": "cognito_idp"
+      "resource_name": "${booking_userpool}",
+      "resource_type": "cognito_idp"
     }
   ],
   "event_sources": [],
