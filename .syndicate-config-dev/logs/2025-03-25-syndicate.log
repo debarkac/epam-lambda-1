@@ -1,0 +1,16 @@
+2025-03-25 10:17:55,354 [INFO] USER:DebarkaChakraborti generate.py:72:project LOG: Project name: task11
+2025-03-25 10:17:55,355 [INFO] USER:DebarkaChakraborti generate.py:79:project LOG: Project path: C:\Users\debarka_chakraborti\Documents\AWS tutorial\epam-lambda-1
+2025-03-25 10:17:55,361 [INFO] USER:DebarkaChakraborti project.py:77:generate_project_structure LOG: Project task11 folder has been successfully created.
+2025-03-25 10:17:55,361 [INFO] USER:DebarkaChakraborti helper.py:330:timed LOG: Stage project, elapsed time: 0:00:00.006857
+2025-03-25 10:18:18,350 [INFO] USER:DebarkaChakraborti s3_resource.py:40:validate_bucket_name LOG: Starting validating bucket name 'syndicate-education-platform-custom-sandbox-artifacts-6675'
+2025-03-25 10:18:18,353 [INFO] USER:DebarkaChakraborti s3_resource.py:73:validate_bucket_name LOG: Finished validating bucket name 'syndicate-education-platform-custom-sandbox-artifacts-6675'
+2025-03-25 10:18:18,353 [INFO] USER:DebarkaChakraborti helper.py:525:convert LOG: Stripping run_id:JAP-11,run_type:stm,type:user,user_id:2945b334 from "," a bit..
+2025-03-25 10:18:18,353 [INFO] USER:DebarkaChakraborti helper.py:529:convert LOG: Converting: run_id:JAP-11,run_type:stm,type:user,user_id:2945b334 to dict..
+2025-03-25 10:18:18,353 [INFO] USER:DebarkaChakraborti helper.py:541:convert LOG: Converted to such a dict: {'run_id': 'JAP-11', 'run_type': 'stm', 'type': 'user', 'user_id': '2945b334'}
+2025-03-25 10:18:19,914 [WARNING] USER:DebarkaChakraborti generator.py:76:generate_configuration_files LOG: The config_path property is not specified. The working directory is used
+2025-03-25 10:18:19,915 [WARNING] USER:DebarkaChakraborti generator.py:93:generate_configuration_files LOG: The "project_path" property is not specified. The working directory will be used as a project path. To change the path, edit the syndicate.yml by path C:\Users\debarka_chakraborti\Documents\AWS tutorial\epam-lambda-1\task11\.syndicate-config-dev
+2025-03-25 10:18:19,919 [INFO] USER:DebarkaChakraborti generator.py:155:generate_configuration_files LOG: Syndicate initialization has been completed. 
+Set SDCT_CONF:
+Unix: export SDCT_CONF="C:\Users\debarka_chakraborti\Documents\AWS tutorial\epam-lambda-1\task11\.syndicate-config-dev"
+Windows: setx SDCT_CONF C:\Users\debarka_chakraborti\Documents\AWS tutorial\epam-lambda-1\task11\.syndicate-config-dev
+2025-03-25 10:18:19,920 [INFO] USER:DebarkaChakraborti helper.py:330:timed LOG: Stage config, elapsed time: 0:00:01.566569
